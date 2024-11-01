@@ -98,11 +98,13 @@ const Analysis = ({
               <BlockMath math={`T_d = ${td_0_cal} * 10^{-8} s`} />
             </>
           )}
-          <CustomChart
-            iswall1visible
-            iswall2visible
-            constructive={p_cal % 2 === 0}
-          />
+          {(iswall1visible || iswall2visible) && (
+            <CustomChart
+              iswall1visible={iswall1visible}
+              iswall2visible={iswall2visible}
+              constructive={p_cal % 2 === 0}
+            />
+          )}
         </>
       )}
       {velocity !== 0 && direction === "Right" && (
@@ -182,11 +184,13 @@ const Analysis = ({
               <BlockMath math={`T_d = ${td_0_cal} * 10^{-8} s`} />
             </>
           )}
-          <CustomChart
-            iswall1visible
-            iswall2visible
-            constructive={p_cal % 2 === 0}
-          />
+          {(iswall1visible || iswall2visible) && (
+            <CustomChart
+              iswall1visible={iswall1visible}
+              iswall2visible={iswall2visible}
+              constructive={p_cal % 2 === 0}
+            />
+          )}
         </>
       )}
       {velocity !== 0 && direction === "Left" && (
@@ -266,11 +270,13 @@ const Analysis = ({
               <BlockMath math={`T_d = ${td_0_cal} * 10^{-8} s`} />
             </>
           )}
-          <CustomChart
-            iswall1visible
-            iswall2visible
-            constructive={p_cal % 2 === 0}
-          />
+          {(iswall1visible || iswall2visible) && (
+            <CustomChart
+              iswall1visible={iswall1visible}
+              iswall2visible={iswall2visible}
+              constructive={p_cal % 2 === 0}
+            />
+          )}
         </>
       )}
     </div>
