@@ -92,7 +92,7 @@ const SineWave: React.FC = () => {
       .array as Float32Array;
 
     for (let i = 0; i < 50; i++) {
-      const x = i * 0.58 - 8; // Adjust length
+      const x = i * 0.78 - 8; // Adjust length
       const y = Math.sin(x - t); // Wave oscillation
       positions[i * 3] = x; // X
       positions[i * 3 + 1] = y; // Y
@@ -129,7 +129,7 @@ const SineWave3: React.FC = () => {
       .array as Float32Array;
 
     for (let i = 0; i < 50; i++) {
-      const x = i * 0.32 - 8; // Adjust length
+      const x = i * 0.33 - 8; // Adjust length
       const y = Math.sin(x - t); // Wave oscillation
       positions[i * 3] = x; // X
       positions[i * 3 + 1] = y; // Y
@@ -145,7 +145,7 @@ const SineWave3: React.FC = () => {
         <bufferAttribute
           attach="attributes-position"
           count={50}
-          array={new Float32Array(50 * 3)}
+          array={new Float32Array(50 * 4)}
           itemSize={3}
         />
       </bufferGeometry>
@@ -240,7 +240,7 @@ const SineWaveRef: React.FC = () => {
       .array as Float32Array;
 
     for (let i = 0; i < 50; i++) {
-      const x = i * 0.19 + 10; // Adjust length
+      const x = i * 0.43 + 10; // Adjust length
       const y = Math.sin(x + t); // Wave oscillation
       positions[i * 3] = x; // X
       positions[i * 3 + 1] = y; // Y
@@ -251,7 +251,7 @@ const SineWaveRef: React.FC = () => {
 
   return (
     // @ts-ignore
-    <line ref={lineRef} position={[0, 5, 0]}>
+    <line ref={lineRef} position={[-1, 5, 0]}>
       <bufferGeometry attach="geometry">
         <bufferAttribute
           attach="attributes-position"
@@ -411,6 +411,7 @@ const ThreeScene: React.FC = () => {
   const [velocity, setVelocity] = useState<number>(0);
   const [d, setD] = useState<number>(20);
   const [r, setR] = useState<number>(10);
+  const [f, setF] = useState<number>(900);
   // State for direction, default is "Right"
   const [direction, setDirection] = useState<"Left" | "Right">("Right");
 
@@ -427,11 +428,39 @@ const ThreeScene: React.FC = () => {
     setWall2Visible((prev) => !prev);
   };
 
+  const handleDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newD = parseFloat(event.target.value);
+    if (newD > r) {
+      setD(newD);
+    } else {
+      alert("d must be greater than r");
+    }
+  };
+
+  // Handler for changing r
+  const handleRChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newR = parseFloat(event.target.value);
+    if (newR < d) {
+      setR(newR);
+    } else {
+      alert("r must be less than d");
+    }
+  };
+
+  const handleFChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newF = parseFloat(event.target.value);
+    if (newF > 0) {
+      setF(newF);
+    } else {
+      alert("f cannot be 0Hz");
+    }
+  };
+
   return (
     <div className="relative w-full h-screen">
       <div className="absolute inset-0 z-0">
         <Canvas
-          camera={{ position: [0, 0, 20], fov: 75 }}
+          camera={{ position: [10, 0, 20], fov: 75 }}
           style={{ width: "100%", height: "100vh", backgroundColor: "#1a1a1a" }} // Set custom background color
         >
           <ambientLight intensity={0.9} />
@@ -445,7 +474,7 @@ const ThreeScene: React.FC = () => {
             scale={0.7}
           />
 
-          <TwoSidedArrow position={[0.6, -5, 0]} length={14.9} />
+          <TwoSidedArrow position={[1, -5, 0]} length={16.2} />
           <Html position={[0.6, -5, 0]} style={{ pointerEvents: "none" }}>
             <div
               style={{ color: "black", fontSize: "1em", textAlign: "center" }}
@@ -456,11 +485,11 @@ const ThreeScene: React.FC = () => {
 
           {/* Receiver */}
           <ObjectModel
-            path="/reno.obj"
-            materialPath="/reno.mtl"
+            path="/mobile.obj"
+            materialPath="/mobile.mtl"
             position={[8.5, 5, 0]}
-            scale={0.005}
-            rotation={[0, 0, 0]}
+            scale={20}
+            rotation={[Math.PI / 2, (3 * Math.PI) / 2, Math.PI / 4]}
           />
 
           <Html position={[-10, 8, 0]} style={{ pointerEvents: "none" }}>
@@ -500,7 +529,7 @@ const ThreeScene: React.FC = () => {
           )}
           {wall2Visible && (
             <>
-              <Html position={[20, 8, 0]} style={{ pointerEvents: "none" }}>
+              <Html position={[30, 8, 0]} style={{ pointerEvents: "none" }}>
                 <div
                   style={{
                     color: "#CD7F32",
@@ -511,8 +540,8 @@ const ThreeScene: React.FC = () => {
                   Right Wall
                 </div>
               </Html>
-              <TwoSidedArrow position={[13.7, -5, 0]} length={10.3} />
-              <Html position={[13.7, -5, 0]} style={{ pointerEvents: "none" }}>
+              <TwoSidedArrow position={[20, -5, 0]} length={21} />
+              <Html position={[19, -5, 0]} style={{ pointerEvents: "none" }}>
                 <div
                   style={{
                     color: "black",
@@ -520,7 +549,7 @@ const ThreeScene: React.FC = () => {
                     textAlign: "center",
                   }}
                 >
-                  <p className="flex text-nowrap">d-r</p>
+                  <p className="flex text-nowrap">2(d-r)</p>
                 </div>
               </Html>
             </>
@@ -553,7 +582,7 @@ const ThreeScene: React.FC = () => {
           {wall2Visible && (
             <>
               <Wall
-                position={[20, 1, 0]}
+                position={[30, 1, 0]}
                 rotation={[0, Math.PI / 2, 0]}
                 scale={[1, 5, 0.5]}
                 color="#964B00"
@@ -574,7 +603,7 @@ const ThreeScene: React.FC = () => {
           <Wall
             position={[0, -6, 0]}
             rotation={[Math.PI / 2, 0, 0]}
-            scale={[5, 30, 0.5]}
+            scale={[7.5, 30, 0.5]}
             color="#808080"
           />
 
@@ -608,9 +637,9 @@ const ThreeScene: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-gray-500 p-1 rounded-md shadow-md font-semibold absolute top-5 left-[47.5%]">
+      <div className="bg-gray-500 p-1 rounded-md shadow-md font-semibold absolute top-5 left-[35%]">
         <div className="flex items-center gap-1">
-          <p>Scene 1</p>
+          <p>Interactive 3D Visualization of Wireless channel effects</p>
         </div>
       </div>
 
@@ -620,20 +649,33 @@ const ThreeScene: React.FC = () => {
           <Input
             type="number"
             value={d}
-            onChange={(e) => setD(Number(e.target.value))}
+            onChange={handleDChange}
             className="ml-1 w-20 bg-gray-600 border-none rounded text-center"
           />
+          <p className="ml-1">m</p>
         </Label>
         <Label className="text-black flex items-center">
           r:
           <Input
             type="number"
             value={r}
-            onChange={(e) => setR(Number(e.target.value))}
+            onChange={handleRChange}
             className="ml-1 w-20 bg-gray-600 border-none rounded text-center"
           />
+          <p className="ml-1">m</p>
         </Label>
-        <p className="text-sm text-black">f = 900MHz</p>
+        {/* <p className="text-sm text-black">{`Always d > r`}</p> */}
+        <Label className="text-black flex items-center ml-4">
+          f:
+          <Input
+            type="number"
+            value={f}
+            onChange={handleFChange}
+            className="ml-1 w-20 bg-gray-600 border-none rounded text-center"
+          />
+          <p className="ml-1">MHz</p>
+        </Label>
+        {/* <p className="text-sm text-black">f = 900MHz</p> */}
       </div>
 
       <div className="absolute top-5 right-5 flex flex-col items-center p-1 border bg-gray-500 rounded-md w-48">
@@ -647,6 +689,7 @@ const ThreeScene: React.FC = () => {
             onChange={(e) => setVelocity(Number(e.target.value))}
             className="ml-1 w-20 bg-gray-600 border-none rounded text-center"
           />
+          <p className="ml-1">m/s</p>
         </Label>
 
         <div className="flex space-x-4 mt-2">
@@ -692,6 +735,7 @@ const ThreeScene: React.FC = () => {
               direction={direction}
               d={d}
               r={r}
+              f={f}
             />
             <DrawerFooter>
               <DrawerClose>

@@ -19,13 +19,15 @@ const CustomChart = ({
         data.push({
           time: x.toFixed(1),
           direct: Math.sin(x),
-          leftWall: Math.sin(x) * 0.7, // 70% amplitude
+          leftWall: Math.sin(x) * 0.75, // 70% amplitude
+          rightWall: Math.sin(x) * 0.5, // 70% amplitude
         });
       } else {
         data.push({
           time: x.toFixed(1),
           direct: Math.sin(x),
-          leftWall: -1 * Math.sin(x) * 0.6, // 70% amplitude
+          leftWall: -1 * Math.sin(x) * 0.75,
+          rightWall: -1 * Math.sin(x) * 0.5,
         });
       }
     }
@@ -38,7 +40,14 @@ const CustomChart = ({
         <div className="bg-white p-4 shadow-lg rounded-lg border border-gray-200">
           <p className="text-blue-600 font-medium">Direct Signal</p>
           {iswall1visible && iswall2visible && (
-            <p className="text-green-600 font-medium">Reflected from Wall</p>
+            <>
+              <p className="text-green-600 font-medium">
+                Reflected from Left Wall
+              </p>
+              <p className="text-orange-600 font-medium">
+                Reflected from Right Wall
+              </p>
+            </>
           )}
           {iswall1visible && !iswall2visible && (
             <p className="text-green-600 font-medium">
@@ -46,7 +55,7 @@ const CustomChart = ({
             </p>
           )}
           {!iswall1visible && iswall2visible && (
-            <p className="text-green-600 font-medium">
+            <p className="text-orange-600 font-medium">
               Reflected from Right Wall
             </p>
           )}
@@ -80,14 +89,26 @@ const CustomChart = ({
             dot={false}
             name="Direct Signal"
           />
-          <Line
-            type="monotone"
-            dataKey="leftWall"
-            stroke="#16a34a"
-            strokeWidth={2}
-            dot={false}
-            name="Reflected from either Wall"
-          />
+          {iswall1visible && (
+            <Line
+              type="monotone"
+              dataKey="leftWall"
+              stroke="#16a34a"
+              strokeWidth={2}
+              dot={false}
+              name="Reflected from left Wall"
+            />
+          )}
+          {iswall2visible && (
+            <Line
+              type="monotone"
+              dataKey="rightWall"
+              stroke="#fF5733"
+              strokeWidth={2}
+              dot={false}
+              name="Reflected from right Wall"
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     </div>

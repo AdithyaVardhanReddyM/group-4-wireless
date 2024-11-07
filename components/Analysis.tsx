@@ -10,6 +10,11 @@ type Props = {
   direction: "Left" | "Right";
   d: number;
   r: number;
+  f: number;
+};
+
+const phasedifference = (f: number, d: number, r: number) => {
+  return ((4 * f * 1) / 3) * (d - r);
 };
 
 const Analysis = ({
@@ -19,11 +24,12 @@ const Analysis = ({
   direction,
   d = 20,
   r = 10,
+  f = 900,
 }: Props) => {
   const diff = d - r;
   const p_cal = 12 * diff;
   const td_0_cal = (2 * diff) / 3;
-  const dopp_v = 6 * velocity;
+  const dopp_v = ((2 * f * 1) / 3) * velocity;
   return (
     <div>
       <h2 className="my-4 ml-10 font-semibold">Transmitted Signal Equation</h2>
@@ -47,7 +53,7 @@ const Analysis = ({
               <h2 className="my-4 ml-20">
                 Right Wall Reflected Signal Equation :
               </h2>
-              <BlockMath math="E_r''(t) = - \frac{\alpha}{2d-r} \cos(2 \pi f (t - \frac{2d-r}{c} ))" />
+              <BlockMath math="E_r''(t) = - \frac{\alpha}{4d-3r} \cos(2 \pi f (t - \frac{4d-3r}{c} ))" />
             </>
           )}
           {(iswall1visible || iswall2visible) && (
@@ -62,9 +68,13 @@ const Analysis = ({
                 </p>
               </div>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math={`\\Delta \\theta' = ${p_cal}\\pi`} />
+                <BlockMath
+                  math={`\\Delta \\theta' = ${parseFloat(
+                    phasedifference(f, d, r).toFixed(2)
+                  )}\\pi`}
+                />
                 <p>
-                  {p_cal % 2 === 0
+                  {phasedifference(f, d, r) % 2 === 0
                     ? "(Constructive Interference)"
                     : "(Destructive Interference)"}
                 </p>
@@ -74,15 +84,19 @@ const Analysis = ({
           {iswall2visible && (
             <>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math="\Delta \theta'' = \frac{4\pi f(d-r)}{c}" />
+                <BlockMath math="\Delta \theta'' = \frac{8\pi f(d-r)}{c}" />
                 <p>
                   (Between Direct signal and reflected signal from right wall)
                 </p>
               </div>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math={`\\Delta \\theta'' = ${p_cal}\\pi`} />
+                <BlockMath
+                  math={`\\Delta \\theta'' = ${parseFloat(
+                    (2 * phasedifference(f, d, r)).toFixed(2)
+                  )}\\pi`}
+                />
                 <p>
-                  {p_cal % 2 === 0
+                  {(2 * phasedifference(f, d, r)) % 2 === 0
                     ? "(Constructive Interference)"
                     : "(Destructive Interference)"}
                 </p>
@@ -94,15 +108,55 @@ const Analysis = ({
           {(iswall1visible || iswall2visible) && (
             <>
               <h2 className="my-4 ml-10 font-semibold">Delay Spread</h2>
-              <BlockMath math="T_d = \frac{2d-r}{c}-\frac{r}{c}" />
-              <BlockMath math={`T_d = ${td_0_cal} * 10^{-8} s`} />
+              {iswall1visible && !iswall2visible && (
+                <BlockMath math="T_d = \frac{2d-r}{c}-\frac{r}{c}" />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath math="T_d = \frac{4d-3r}{c}-\frac{r}{c}" />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath math="T_d = \frac{4d-3r}{c}-\frac{r}{c}" />
+              )}
+              {iswall1visible && !iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${parseFloat(
+                    td_0_cal.toFixed(2)
+                  )} * 10^{-2} \\mu s`}
+                />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${
+                    2 * parseFloat(td_0_cal.toFixed(2))
+                  } * 10^{-2} \\mu s`}
+                />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${
+                    2 * parseFloat(td_0_cal.toFixed(2))
+                  } * 10^{-2} \\mu s`}
+                />
+              )}
+
+              <h2 className="my-4 ml-10 font-semibold">Coherence Bandwidth</h2>
+              <BlockMath math="B_c = \frac{1}{T_d}" />
+              {iswall1visible && !iswall2visible && (
+                <BlockMath math={`B_c = ${1 / td_0_cal} MHz`} />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath math={`B_c = ${1 / (2 * td_0_cal)} MHz`} />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath math={`B_c = ${1 / (2 * td_0_cal)} MHz`} />
+              )}
             </>
           )}
           {(iswall1visible || iswall2visible) && (
             <CustomChart
               iswall1visible={iswall1visible}
               iswall2visible={iswall2visible}
-              constructive={p_cal % 2 === 0}
+              constructive={phasedifference(f, d, r) % 2 === 0}
             />
           )}
         </>
@@ -123,7 +177,7 @@ const Analysis = ({
               <h2 className="my-4 ml-20">
                 Right Wall Reflected Signal Equation :
               </h2>
-              <BlockMath math="E_r''(t) = - \frac{\alpha}{2d-r-vt} \cos(2 \pi f ([1+\frac{v}{c}]t - \frac{2d-r}{c} ))" />
+              <BlockMath math="E_r''(t) = - \frac{\alpha}{4d-3r-vt} \cos(2 \pi f ([1+\frac{v}{c}]t - \frac{4d-3r}{c} ))" />
             </>
           )}
           <BlockMath math={`v = ${velocity} \\text{m/s}`} />
@@ -139,9 +193,13 @@ const Analysis = ({
                 </p>
               </div>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math={`\\Delta \\theta' = ${p_cal}\\pi`} />
+                <BlockMath
+                  math={`\\Delta \\theta' = ${parseFloat(
+                    phasedifference(f, d, r).toFixed(2)
+                  )}\\pi`}
+                />
                 <p>
-                  {p_cal % 2 === 0
+                  {phasedifference(f, d, r) % 2 === 0
                     ? "(Constructive Interference)"
                     : "(Destructive Interference)"}
                 </p>
@@ -151,15 +209,19 @@ const Analysis = ({
           {iswall2visible && (
             <>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math="\Delta \theta'' = \frac{4\pi f(d-r)}{c}" />
+                <BlockMath math="\Delta \theta'' = \frac{8\pi f(d-r)}{c}" />
                 <p>
                   (Between Direct signal and reflected signal from right wall)
                 </p>
               </div>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math={`\\Delta \\theta'' = ${p_cal}\\pi`} />
+                <BlockMath
+                  math={`\\Delta \\theta'' = ${parseFloat(
+                    (2 * phasedifference(f, d, r)).toFixed(2)
+                  )}\\pi`}
+                />
                 <p>
-                  {p_cal % 2 === 0
+                  {(2 * phasedifference(f, d, r)) % 2 === 0
                     ? "(Constructive Interference)"
                     : "(Destructive Interference)"}
                 </p>
@@ -180,15 +242,55 @@ const Analysis = ({
           {(iswall1visible || iswall2visible) && (
             <>
               <h2 className="my-4 ml-10 font-semibold">Delay Spread</h2>
-              <BlockMath math="T_d = \frac{2d-r}{c}-\frac{r}{c}" />
-              <BlockMath math={`T_d = ${td_0_cal} * 10^{-8} s`} />
+              {iswall1visible && !iswall2visible && (
+                <BlockMath math="T_d = \frac{2d-r}{c}-\frac{r}{c}" />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath math="T_d = \frac{4d-3r}{c}-\frac{r}{c}" />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath math="T_d = \frac{4d-3r}{c}-\frac{r}{c}" />
+              )}
+              {iswall1visible && !iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${parseFloat(
+                    td_0_cal.toFixed(2)
+                  )} * 10^{-2} \\mu s`}
+                />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${
+                    2 * parseFloat(td_0_cal.toFixed(2))
+                  } * 10^{-2} \\mu s`}
+                />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${
+                    2 * parseFloat(td_0_cal.toFixed(2))
+                  } * 10^{-2} \\mu s`}
+                />
+              )}
+
+              <h2 className="my-4 ml-10 font-semibold">Coherence Bandwidth</h2>
+              <BlockMath math="B_c = \frac{1}{T_d}" />
+              {iswall1visible && !iswall2visible && (
+                <BlockMath math={`B_c = ${1 / td_0_cal} MHz`} />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath math={`B_c = ${1 / (2 * td_0_cal)} MHz`} />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath math={`B_c = ${1 / (2 * td_0_cal)} MHz`} />
+              )}
             </>
           )}
           {(iswall1visible || iswall2visible) && (
             <CustomChart
               iswall1visible={iswall1visible}
               iswall2visible={iswall2visible}
-              constructive={p_cal % 2 === 0}
+              constructive={phasedifference(f, d, r) % 2 === 0}
             />
           )}
         </>
@@ -209,7 +311,7 @@ const Analysis = ({
               <h2 className="my-4 ml-20">
                 Right Wall Reflected Signal Equation :
               </h2>
-              <BlockMath math="E_r''(t) = - \frac{\alpha}{2d-r+vt} \cos(2 \pi f ([1-\frac{v}{c}]t - \frac{2d-r}{c} ))" />
+              <BlockMath math="E_r''(t) = - \frac{\alpha}{4d-3r+vt} \cos(2 \pi f ([1-\frac{v}{c}]t - \frac{4d-3r}{c} ))" />
             </>
           )}
           <BlockMath math={`v = ${velocity} \\text{m/s}`} />
@@ -225,9 +327,13 @@ const Analysis = ({
                 </p>
               </div>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math={`\\Delta \\theta' = ${p_cal}\\pi`} />
+                <BlockMath
+                  math={`\\Delta \\theta' = ${parseFloat(
+                    phasedifference(f, d, r).toFixed(2)
+                  )}\\pi`}
+                />
                 <p>
-                  {p_cal % 2 === 0
+                  {phasedifference(f, d, r) % 2 === 0
                     ? "(Constructive Interference)"
                     : "(Destructive Interference)"}
                 </p>
@@ -237,15 +343,19 @@ const Analysis = ({
           {iswall2visible && (
             <>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math="\Delta \theta'' = \frac{4\pi f(d-r)}{c}" />
+                <BlockMath math="\Delta \theta'' = \frac{8\pi f(d-r)}{c}" />
                 <p>
                   (Between Direct signal and reflected signal from right wall)
                 </p>
               </div>
               <div className="flex items-center gap-2 justify-center">
-                <BlockMath math={`\\Delta \\theta'' = ${p_cal}\\pi`} />
+                <BlockMath
+                  math={`\\Delta \\theta'' = ${parseFloat(
+                    (2 * phasedifference(f, d, r)).toFixed(2)
+                  )}\\pi`}
+                />
                 <p>
-                  {p_cal % 2 === 0
+                  {(2 * phasedifference(f, d, r)) % 2 === 0
                     ? "(Constructive Interference)"
                     : "(Destructive Interference)"}
                 </p>
@@ -266,15 +376,55 @@ const Analysis = ({
           {(iswall1visible || iswall2visible) && (
             <>
               <h2 className="my-4 ml-10 font-semibold">Delay Spread</h2>
-              <BlockMath math="T_d = \frac{2d-r}{c}-\frac{r}{c}" />
-              <BlockMath math={`T_d = ${td_0_cal} * 10^{-8} s`} />
+              {iswall1visible && !iswall2visible && (
+                <BlockMath math="T_d = \frac{2d-r}{c}-\frac{r}{c}" />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath math="T_d = \frac{4d-3r}{c}-\frac{r}{c}" />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath math="T_d = \frac{4d-3r}{c}-\frac{r}{c}" />
+              )}
+              {iswall1visible && !iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${parseFloat(
+                    td_0_cal.toFixed(2)
+                  )} * 10^{-2} \\mu s`}
+                />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${
+                    2 * parseFloat(td_0_cal.toFixed(2))
+                  } * 10^{-2} \\mu s`}
+                />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath
+                  math={`T_d = ${
+                    2 * parseFloat(td_0_cal.toFixed(2))
+                  } * 10^{-2} \\mu s`}
+                />
+              )}
+
+              <h2 className="my-4 ml-10 font-semibold">Coherence Bandwidth</h2>
+              <BlockMath math="B_c = \frac{1}{T_d}" />
+              {iswall1visible && !iswall2visible && (
+                <BlockMath math={`B_c = ${1 / td_0_cal} MHz`} />
+              )}
+              {!iswall1visible && iswall2visible && (
+                <BlockMath math={`B_c = ${1 / (2 * td_0_cal)} MHz`} />
+              )}
+              {iswall1visible && iswall2visible && (
+                <BlockMath math={`B_c = ${1 / (2 * td_0_cal)} MHz`} />
+              )}
             </>
           )}
           {(iswall1visible || iswall2visible) && (
             <CustomChart
               iswall1visible={iswall1visible}
               iswall2visible={iswall2visible}
-              constructive={p_cal % 2 === 0}
+              constructive={phasedifference(f, d, r) % 2 === 0}
             />
           )}
         </>
